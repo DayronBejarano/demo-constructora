@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Building2, HardHat, Ruler, BarChart3, ArrowRight, 
-  MapPin, Clock, CheckCircle2, ChevronRight,
-  Cpu, Phone
+  MapPin, Clock, Cpu, Phone, X, Lock, FileText, Download
 } from 'lucide-react';
 
 import { 
@@ -12,41 +11,65 @@ import {
   Reveal 
 } from './components/ui/Effects';
 
+// --- COMPONENTE MODAL REUTILIZABLE ---
+const Modal = ({ isOpen, onClose, title, children, icon: Icon }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div 
+        className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm cursor-pointer"
+        onClick={onClose}
+      />
+      {/* Modal Content */}
+      <div className="relative bg-zinc-900 border border-cyan-500/30 w-full max-w-lg shadow-[0_0_50px_rgba(6,182,212,0.15)] animate-in fade-in zoom-in duration-200">
+        <div className="flex items-center justify-between p-4 border-b border-zinc-800 bg-zinc-950">
+          <div className="flex items-center gap-2 text-cyan-400 font-mono text-xs uppercase tracking-widest">
+            {Icon && <Icon className="w-4 h-4" />}
+            {title}
+          </div>
+          <button onClick={onClose} className="text-zinc-500 hover:text-cyan-400 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const App = () => {
+  // ESTADOS PARA INTERACTIVIDAD DE LA PÁGINA
+  const [activeModal, setActiveModal] = useState(null); // 'login' | 'specs' | null
+
   const proyectosEjecucion = [
     {
-      id: "PRJ-089",
-      nombre: "Torre Empresarial Zénith",
-      ubicacion: "Centro Financiero",
-      avance: 78,
-      fase: "Acabados Internos",
-      entrega: "Q4 2026"
+      id: "PRJ-089", nombre: "Torre Empresarial Zénith", ubicacion: "Centro Financiero",
+      avance: 78, fase: "Acabados Internos", entrega: "Q4 2026"
     },
     {
-      id: "PRJ-092",
-      nombre: "Viaducto Norte",
-      ubicacion: "Vía Panamericana",
-      avance: 45,
-      fase: "Estructura Principal",
-      entrega: "Q2 2027"
+      id: "PRJ-092", nombre: "Viaducto Norte", ubicacion: "Vía Panamericana",
+      avance: 45, fase: "Estructura Principal", entrega: "Q2 2027"
     },
     {
-      id: "PRJ-095",
-      nombre: "Complejo Logístico Alfa",
-      ubicacion: "Zona Franca",
-      avance: 92,
-      fase: "Certificación Final",
-      entrega: "Próximo Mes"
+      id: "PRJ-095", nombre: "Complejo Logístico Alfa", ubicacion: "Zona Franca",
+      avance: 92, fase: "Certificación Final", entrega: "Próximo Mes"
     }
   ];
 
+  const handleCotizar = () => {
+    const mensaje = "Hola. Vengo de la plataforma interactiva y deseo cotizar un proyecto de ingeniería civil.";
+    window.open(`https://wa.me/573104208919?text=${encodeURIComponent(mensaje)}`, '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans selection:bg-cyan-500 selection:text-zinc-950 relative overflow-hidden pb-24">
-      
       <BlueprintBackground />
       
       {/* NAVEGACIÓN INDUSTRIAL */}
-      <nav className="fixed w-full z-50 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800">
+      <nav className="fixed w-full z-50 bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-cyan-500 p-2 text-zinc-950">
@@ -61,7 +84,11 @@ const App = () => {
           <div className="hidden md:flex items-center gap-8 font-bold text-xs tracking-widest uppercase text-zinc-400">
             <a href="#proyectos" className="hover:text-cyan-400 transition-colors">Portafolio</a>
             <a href="#avance" className="hover:text-cyan-400 transition-colors">Estado de Obras</a>
-            <HeavyButton variant="outline" className="!px-5 !py-2 !text-[10px]">
+            <HeavyButton 
+              variant="outline" 
+              className="!px-5 !py-2 !text-[10px]"
+              onClick={() => setActiveModal('login')}
+            >
               Portal Clientes
             </HeavyButton>
           </div>
@@ -69,9 +96,8 @@ const App = () => {
       </nav>
 
       {/* HERO SECTION DE INGENIERÍA */}
-      <section className="relative z-10 pt-36 pb-20 px-6 lg:pt-48 lg:pb-32">
+      <section id="proyectos" className="relative z-10 pt-36 pb-20 px-6 lg:pt-48 lg:pb-32">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-14 items-center">
-          
           <Reveal>
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-[10px] font-mono mb-6 uppercase tracking-widest">
@@ -92,11 +118,14 @@ const App = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 items-center">
-                <HeavyButton icon={ArrowRight}>
+                <HeavyButton icon={ArrowRight} onClick={handleCotizar}>
                   Cotizar Proyecto
                 </HeavyButton>
                 
-                <button className="text-zinc-300 font-bold uppercase tracking-widest text-xs px-6 py-4 hover:text-cyan-400 transition-colors flex items-center gap-2">
+                <button 
+                  onClick={() => setActiveModal('specs')}
+                  className="text-zinc-300 font-bold uppercase tracking-widest text-xs px-6 py-4 hover:text-cyan-400 transition-colors flex items-center gap-2"
+                >
                   <Ruler className="w-4 h-4" />
                   Ver Especificaciones Técnicas
                 </button>
@@ -105,7 +134,7 @@ const App = () => {
           </Reveal>
 
           <Reveal delay={0.2}>
-            {/* PANEL DE CONTROL SIMULADO */}
+            {/* PANEL DE ESTADÍSTICAS */}
             <div className="relative bg-zinc-900 border border-zinc-800 p-2 shadow-2xl">
               <div className="absolute -top-3 -left-3 w-6 h-6 border-t-2 border-l-2 border-cyan-500" />
               <div className="absolute -bottom-3 -right-3 w-6 h-6 border-b-2 border-r-2 border-cyan-500" />
@@ -139,7 +168,7 @@ const App = () => {
         </div>
       </section>
 
-      {/* MÓDULO DE AVANCE DE OBRA EN TIEMPO REAL (El Gancho Comercial) */}
+      {/* MÓDULO DE AVANCE DE OBRA EN TIEMPO REAL */}
       <section id="avance" className="relative z-10 py-24 px-6 bg-zinc-900/50 border-y border-zinc-800">
         <div className="max-w-7xl mx-auto">
           <Reveal>
@@ -160,7 +189,7 @@ const App = () => {
           <div className="grid md:grid-cols-3 gap-6">
             {proyectosEjecucion.map((proyecto, idx) => (
               <Reveal key={proyecto.id} delay={idx * 0.1}>
-                <IndustrialCard className="h-full flex flex-col group">
+                <IndustrialCard className="h-full flex flex-col group cursor-pointer" onClick={() => setActiveModal('specs')}>
                   <div className="flex justify-between items-start mb-6">
                     <span className="font-mono text-xs text-zinc-500 bg-zinc-950 px-2 py-1 border border-zinc-800">
                       {proyecto.id}
@@ -180,13 +209,11 @@ const App = () => {
                       <span className="text-zinc-400">FASE: {proyecto.fase}</span>
                       <span className="text-cyan-400 font-bold">{proyecto.avance}%</span>
                     </div>
-                    {/* Barra de progreso de ingeniería */}
                     <div className="h-2 w-full bg-zinc-950 border border-zinc-800 overflow-hidden relative">
                       <div 
                         className="absolute top-0 left-0 h-full bg-cyan-500 transition-all duration-1000 ease-out relative overflow-hidden"
                         style={{ width: `${proyecto.avance}%` }}
                       >
-                        {/* Rayas de precaución animadas dentro de la barra de progreso */}
                         <div className="absolute inset-0 w-full h-full opacity-30" 
                              style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 20px)' }}>
                         </div>
@@ -200,8 +227,67 @@ const App = () => {
         </div>
       </section>
 
-      {/* BANNER COMERCIAL DE ADQUISICIÓN DB TECH STUDIO (Tema Ingeniería) */}
-      <div className="fixed bottom-0 left-0 right-0 z-[100] bg-zinc-950/95 backdrop-blur-2xl border-t-2 border-cyan-500/50 p-4 shadow-[0_-20px_40px_rgba(0,0,0,0.8)]">
+      {/* --- MODALES INTERACTIVOS --- */}
+      
+      {/* Modal 1: Portal Clientes (Login Simulado) */}
+      <Modal 
+        isOpen={activeModal === 'login'} 
+        onClose={() => setActiveModal(null)}
+        title="Portal de Acceso a Inversores"
+        icon={Lock}
+      >
+        <p className="text-zinc-400 text-sm mb-6">
+          Ingrese sus credenciales para acceder a la telemetría, facturación y cámaras en vivo de sus proyectos en ejecución.
+        </p>
+        <div className="space-y-4">
+          <div>
+            <label className="font-mono text-xs text-cyan-500 mb-1 block">ID DE INVERSOR / EMAIL</label>
+            <input type="text" className="w-full bg-zinc-950 border border-zinc-800 p-3 text-zinc-100 outline-none focus:border-cyan-500 transition-colors font-mono" placeholder="Ej: INV-7842" />
+          </div>
+          <div>
+            <label className="font-mono text-xs text-cyan-500 mb-1 block">CLAVE DE ACCESO PIN</label>
+            <input type="password" className="w-full bg-zinc-950 border border-zinc-800 p-3 text-zinc-100 outline-none focus:border-cyan-500 transition-colors font-mono" placeholder="••••••••" />
+          </div>
+          <HeavyButton className="w-full mt-4" onClick={() => setActiveModal(null)}>
+            Autenticar Acceso
+          </HeavyButton>
+        </div>
+      </Modal>
+
+      {/* Modal 2: Especificaciones Técnicas */}
+      <Modal 
+        isOpen={activeModal === 'specs'} 
+        onClose={() => setActiveModal(null)}
+        title="Documentación Técnica (BIM)"
+        icon={FileText}
+      >
+        <div className="border border-zinc-800 bg-zinc-950 p-4 mb-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="font-bold text-zinc-100">Dossier Corporativo RINO.pdf</p>
+              <p className="text-xs text-zinc-500 font-mono mt-1">2.4 MB • Versión 2026.4</p>
+            </div>
+            <FileText className="text-cyan-500 w-8 h-8 opacity-50" />
+          </div>
+          <div className="grid grid-cols-2 gap-4 font-mono text-[10px] text-zinc-400 bg-zinc-900 p-3">
+            <div>
+              <span className="text-cyan-500 block mb-1">CERTIFICACIONES</span>
+              ISO 9001, ISO 14001
+            </div>
+            <div>
+              <span className="text-cyan-500 block mb-1">SISTEMA INTEGRADO</span>
+              BIM Level 3 Compliant
+            </div>
+          </div>
+        </div>
+        <button className="w-full border border-cyan-500/50 text-cyan-500 hover:bg-cyan-500 hover:text-zinc-950 px-6 py-3 font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2">
+          <Download className="w-4 h-4" />
+          Descargar Especificaciones
+        </button>
+      </Modal>
+
+      {/* BANNER COMERCIAL DE ADQUISICIÓN DB TECH STUDIO */}
+      <div className="fixed bottom-0 left-0 right-0 z-[90] bg-zinc-950/95 backdrop-blur-2xl border-t-2 border-cyan-500/50 p-4 shadow-[0_-20px_40px_rgba(0,0,0,0.8)]">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <div className="bg-cyan-500/10 p-2 border border-cyan-500/30 shrink-0">
@@ -216,20 +302,11 @@ const App = () => {
               </p>
             </div>
           </div>
-          
-          <button 
-            onClick={() => {
-              const mensaje = "Hola Ing. Dayron. Estoy revisando el Demo para Constructoras y me interesa cotizar una plataforma interactiva con seguimiento de obras en tiempo real para nuestros proyectos. ¿Podemos agendar una revisión técnica?";
-              window.open(`https://wa.me/573104208919?text=${encodeURIComponent(mensaje)}`, '_blank');
-            }}
-            className="w-full sm:w-auto bg-cyan-500 hover:bg-cyan-400 text-zinc-950 px-8 py-3 font-extrabold text-xs uppercase tracking-widest transition-all hover:translate-y-[-2px] flex items-center justify-center gap-2 shrink-0 shadow-[4px_4px_0px_rgba(6,182,212,0.3)] hover:shadow-[2px_2px_0px_rgba(6,182,212,0.5)]"
-          >
-            <Phone className="w-4 h-4" />
+          <HeavyButton icon={Phone} onClick={handleCotizar} className="w-full sm:w-auto !py-3">
             Solicitar Presupuesto
-          </button>
+          </HeavyButton>
         </div>
       </div>
-
     </div>
   );
 };
