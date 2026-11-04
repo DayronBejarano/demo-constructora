@@ -81,7 +81,7 @@ const App = () => {
   ];
 
   const handleCotizar = () => {
-    const mensaje = "Hola. Vengo de la plataforma interactiva y deseo cotizar un proyecto de ingeniería civil con su sistema.";
+    const msgObra = `Hola Ing. Dayron. Vengo de revisar el Demo de Constructora [REF: DEMO-OBRA] y me interesa digitalizar nuestros proyectos.`;
     window.open(`https://wa.me/573104208919?text=${encodeURIComponent(mensaje)}`, '_blank');
   };
 
